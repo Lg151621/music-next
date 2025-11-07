@@ -1,0 +1,82 @@
+/* ===== Album Grid Layout ===== */
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 3 per row */
+  gap: 24px;
+  justify-items: center;
+  padding: 2rem;
+  align-items: flex-start;
+}
+
+/* ===== Card Styling ===== */
+.card {
+  width: 100%;
+  max-width: 320px;
+  min-height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+/* ===== Image Wrapper & Fade Effect ===== */
+.img-wrapper {
+  width: 100%;
+  height: 220px;               /* fixed size for consistent layout */
+  background-color: #f8f8f8;   /* neutral background while loading */
+  overflow: hidden;
+  position: relative;
+}
+
+/* ===== Card Body & Text ===== */
+.card-body {
+  padding: 1rem;
+  text-align: center;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.card-text {
+  font-size: 0.9rem;
+  color: #555;
+  min-height: 80px;            /* keeps cards same height */
+}
+
+.btn {
+  margin-top: 10px;
+}
+
+/* ===== Navbar Styling ===== */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+/* Ensure collapsible menu behaves correctly */
+.navbar .navbar-collapse {
+  width: 100%;
+}
+
+/* ===== Main Content Spacing ===== */
+.main-content {
+  padding-top: 2rem;   /* space below navbar */
+  padding-bottom: 2rem;
+  min-height: 70vh;
+}
+
+/* ===== Body Background ===== */
+body {
+  background-color: #f5f5f7;
+}
