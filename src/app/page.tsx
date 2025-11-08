@@ -21,6 +21,9 @@ export default function HomePage() {
 
     (async () => {
       try {
+        // 🧩 Add this line to confirm your API base URL
+        console.log("Fetching albums from:", dataSource.defaults.baseURL + "/api/albums");
+
         const res = await dataSource.get("/api/albums");
 
         // backend may return array or { albums: [...] }
@@ -47,7 +50,7 @@ export default function HomePage() {
     return () => {
       cancelled = true;
     };
-  }, []); // <- no dependency warnings
+  }, []);
 
   const renderedList = albumList.filter((album) => {
     const q = (searchPhrase ?? "").toLowerCase();
