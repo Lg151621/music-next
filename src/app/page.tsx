@@ -19,16 +19,22 @@ export default function HomePage() {
   useEffect(() => {
     let cancelled = false;
 
-    (async () => {
+    async function fetchAlbums() {
       try {
-        // 🧩 Add this line to confirm your API base URL
-        console.log("Fetching albums from:", dataSource.defaults.baseURL + "/api/albums");
+        // ✅ Log to confirm the URL your frontend is calling
+        console.log(
+          "Fetching albums from:",
+          `${dataSource.defaults.baseURL}/api/albums`
+        );
 
+        // ✅ Await the API call (using your shared dataSource config)
         const res = await dataSource.get("/api/albums");
 
-        // backend may return array or { albums: [...] }
+        // Normalize backend response shape
         const raw = res.data as AlbumResponse[] | { albums?: AlbumResponse[] };
-        const source: AlbumResponse[] = Array.isArray(raw) ? raw : raw.albums ?? [];
+        const source: AlbumResponse[] = Array.isArray(raw)
+          ? raw
+          : raw.albums ?? [];
 
         const normalized: Album[] = source.map((a) => ({
           id: a.id,
@@ -42,16 +48,19 @@ export default function HomePage() {
 
         if (!cancelled) setAlbumList(normalized);
       } catch (err) {
-        console.error("Failed to load albums:", err);
+        console.error("❌ Failed to load albums:", err);
         if (!cancelled) setAlbumList([]);
       }
-    })();
+    }
+
+    fetchAlbums();
 
     return () => {
       cancelled = true;
     };
   }, []);
 
+  // Filter logic for search
   const renderedList = albumList.filter((album) => {
     const q = (searchPhrase ?? "").toLowerCase();
     const desc = (album?.description ?? "").toLowerCase();
