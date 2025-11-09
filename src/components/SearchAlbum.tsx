@@ -6,20 +6,18 @@ import AlbumList from "./AlbumList";
 import type { Album } from "@/lib/types";
 
 interface Props {
-  albumList: Album[];
+  albums: Album[];
   updateSearchResults: (phrase: string) => void;
-  updateSingleAlbum: (albumId: number) => void;
 }
 
 export default function SearchAlbum({
-  albumList,
+  albums,
   updateSearchResults,
-  updateSingleAlbum,
 }: Props): JSX.Element {
   return (
     <div className="container">
       <SearchForm onSubmit={updateSearchResults} />
-      <AlbumList albumList={albumList} onClick={updateSingleAlbum} />
+      <AlbumList albums={albums} />
     </div>
   );
 }

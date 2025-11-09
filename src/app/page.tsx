@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import NavBar from "@/components/NavBar";
-import AlbumCard from "@/components/AlbumCard"; // ✅ new import
+import AlbumList from "@/components/AlbumList";  // ✅ use AlbumList now
 import { get } from "@/lib/apiClient";
 import type { Album, AlbumResponse } from "@/lib/types";
 import "@/components/App.css";
@@ -34,12 +34,10 @@ export default function HomePage() {
         if (!cancelled) setAlbumList(normalized);
       } catch (err: unknown) {
         console.error("❌ Failed to load albums:", err);
-
         const message =
           err instanceof Error
             ? err.message
             : "An unexpected error occurred while fetching albums.";
-
         if (!cancelled) setError(message);
       }
     })();
@@ -49,27 +47,20 @@ export default function HomePage() {
     };
   }, []);
 
-  // ✅ Display only the first album if available
-  const firstAlbum = albumList.length > 0 ? albumList[0] : null;
-
   return (
     <>
       <NavBar />
       <main className="container main-content">
-        {error ? (
-          <div style={{ color: "red", fontWeight: "bold", marginTop: "2rem" }}>
-            ⚠️ {error}
-          </div>
-        ) : firstAlbum ? (
-          <div
-            onClick={() => router.push(`/show/${firstAlbum.id}`)}
-            style={{ cursor: "pointer", display: "inline-block" }}
-          >
-            <AlbumCard album={firstAlbum} />
-          </div>
-        ) : (
-          <p>Loading albums...</p>
-        )}
+       {error ? (
+  <div style={{ color: "red", fontWeight: "bold", marginTop: "2rem" }}>
+    ⚠️ {error}
+  </div>
+) : albumList.length > 0 ? (
+  <AlbumList albums={albumList} />
+) : (
+  <p>Loading albums...</p>
+)}
+
       </main>
     </>
   );

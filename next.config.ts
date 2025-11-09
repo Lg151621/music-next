@@ -5,7 +5,42 @@ const BACKEND_BASE =
   process.env.NEXT_PUBLIC_API_URL || "https://cst-391-music-app.vercel.app";
 
 const nextConfig: NextConfig = {
-  // ✅ keep your current backend rewrites exactly the same
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org", // Wikipedia images
+      },
+      {
+        protocol: "https",
+        hostname: "m.media-amazon.com", // Amazon album covers
+      },
+      {
+        protocol: "https",
+        hostname: "i.scdn.co", // Spotify covers
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com", // Unsplash
+      },
+      {
+        protocol: "https",
+        hostname: "is1-ssl.mzstatic.com", // Apple Music / iTunes
+      },
+      {
+        protocol: "https",
+        hostname: "is2-ssl.mzstatic.com", // Apple CDN variant
+      },
+      {
+        protocol: "https",
+        hostname: "is3-ssl.mzstatic.com", // Apple CDN variant
+      },
+      {
+        protocol: "https",
+        hostname: "is4-ssl.mzstatic.com", // Apple CDN variant
+      },
+    ],
+  },
   async rewrites() {
     return [
       {
@@ -16,24 +51,6 @@ const nextConfig: NextConfig = {
             : `${BACKEND_BASE}/api/:path*`,
       },
     ];
-  },
-
-  // ✅ Add image domain configuration for Next.js Image
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "m.media-amazon.com", // for album covers
-      },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com", // optional fallback
-      },
-      {
-        protocol: "https",
-        hostname: "i.scdn.co", // optional: Spotify-like covers
-      },
-    ],
   },
 };
 
