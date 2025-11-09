@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import OneAlbum from "@/components/OneAlbum";
-import dataSource from "@/lib/dataSource";
+import { get } from "@/lib/apiClient";
 import type { Album, AlbumResponse } from "@/lib/types";
 
 export default function ShowAlbumClient({ albumId }: { albumId: string }) {
@@ -13,22 +13,21 @@ export default function ShowAlbumClient({ albumId }: { albumId: string }) {
 
     (async () => {
       try {
-        const res = await dataSource.get("/api/albums");
-        const raw = res.data as AlbumResponse[] | { albums?: AlbumResponse[] };
-        const source: AlbumResponse[] = Array.isArray(raw) ? raw : raw.albums ?? [];
+        const data = await get<AlbumResponse[]>("/albums");
 
-        const normalized: Album[] = source.map((a) => ({
+        const normalized: Album[] = data.map((a) => ({
           id: a.id,
           title: a.title,
           artist: a.artist ?? "",
           year: a.year ?? "",
-          image: a.image ?? a.imageUrl ?? "",
+          image: a.image ?? a.imageUrl,
           description: a.description ?? "",
           tracks: a.tracks,
         }));
 
         if (!cancelled) setAlbumList(normalized);
-      } catch {
+      } catch (err) {
+        console.error("❌ Error loading albums:", err);
         if (!cancelled) setAlbumList([]);
       }
     })();

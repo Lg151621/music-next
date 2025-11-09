@@ -3,40 +3,25 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import NavBar from "@/components/NavBar";
-import SearchAlbum from "@/components/SearchAlbum";
-import dataSource from "@/lib/dataSource";
+import AlbumCard from "@/components/AlbumCard"; // ✅ new import
+import { get } from "@/lib/apiClient";
 import type { Album, AlbumResponse } from "@/lib/types";
 import "@/components/App.css";
 
 export default function HomePage() {
   const router = useRouter();
-  const [searchPhrase, setSearchPhrase] = useState<string>("");
   const [albumList, setAlbumList] = useState<Album[]>([]);
-
-  const updateSearchResults = (phrase: string) => setSearchPhrase(phrase);
-  const updateSingleAlbum = (id: number) => router.push(`/show/${id}`);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchAlbums() {
+    (async () => {
       try {
-        // ✅ Log to confirm the URL your frontend is calling
-        console.log(
-          "Fetching albums from:",
-          `${dataSource.defaults.baseURL}/api/albums`
-        );
+        console.log("Fetching albums from internal API...");
+        const data = await get<AlbumResponse[]>("/albums");
 
-        // ✅ Await the API call (using your shared dataSource config)
-        const res = await dataSource.get("/api/albums");
-
-        // Normalize backend response shape
-        const raw = res.data as AlbumResponse[] | { albums?: AlbumResponse[] };
-        const source: AlbumResponse[] = Array.isArray(raw)
-          ? raw
-          : raw.albums ?? [];
-
-        const normalized: Album[] = source.map((a) => ({
+        const normalized: Album[] = data.map((a) => ({
           id: a.id,
           title: a.title,
           artist: a.artist ?? "",
@@ -47,35 +32,44 @@ export default function HomePage() {
         }));
 
         if (!cancelled) setAlbumList(normalized);
-      } catch (err) {
+      } catch (err: unknown) {
         console.error("❌ Failed to load albums:", err);
-        if (!cancelled) setAlbumList([]);
-      }
-    }
 
-    fetchAlbums();
+        const message =
+          err instanceof Error
+            ? err.message
+            : "An unexpected error occurred while fetching albums.";
+
+        if (!cancelled) setError(message);
+      }
+    })();
 
     return () => {
       cancelled = true;
     };
   }, []);
 
-  // Filter logic for search
-  const renderedList = albumList.filter((album) => {
-    const q = (searchPhrase ?? "").toLowerCase();
-    const desc = (album?.description ?? "").toLowerCase();
-    return q === "" || desc.includes(q);
-  });
+  // ✅ Display only the first album if available
+  const firstAlbum = albumList.length > 0 ? albumList[0] : null;
 
   return (
     <>
       <NavBar />
       <main className="container main-content">
-        <SearchAlbum
-          updateSearchResults={updateSearchResults}
-          albumList={renderedList}
-          updateSingleAlbum={updateSingleAlbum}
-        />
+        {error ? (
+          <div style={{ color: "red", fontWeight: "bold", marginTop: "2rem" }}>
+            ⚠️ {error}
+          </div>
+        ) : firstAlbum ? (
+          <div
+            onClick={() => router.push(`/show/${firstAlbum.id}`)}
+            style={{ cursor: "pointer", display: "inline-block" }}
+          >
+            <AlbumCard album={firstAlbum} />
+          </div>
+        ) : (
+          <p>Loading albums...</p>
+        )}
       </main>
     </>
   );

@@ -2,21 +2,22 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import "@/components/App.css"; // keep your existing styles
-import type { AlbumResponse } from "@/lib/types"; // ✅ use AlbumResponse from shared types
+import "@/components/App.css";
+import type { AlbumResponse } from "@/lib/types";
+import { get, put } from "@/lib/apiClient";
 
 type AlbumState = {
   title: string;
   artist: string;
-  year: string;        // form keeps it as string; convert on submit
+  year: string;
   image: string;
   description: string;
   tracks?: unknown[];
 };
 
 interface Props {
-  albumId: string;      // passed in by the page wrapper
-  onSaved?: () => void; // optional callback after save
+  albumId: string;
+  onSaved?: () => void;
 }
 
 export default function EditAlbum({ albumId, onSaved }: Props) {
@@ -33,29 +34,38 @@ export default function EditAlbum({ albumId, onSaved }: Props) {
   const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
-    void fetchAlbum();
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const data = await get<AlbumResponse>(`/albums/${albumId}`);
+        if (cancelled) return;
+
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setAlbum({
+          title: data.title ?? "",
+          artist: data.artist ?? "",
+          year: (data.year ?? "").toString(),
+          image: data.image ?? data.imageUrl ?? "",
+          description: data.description ?? "",
+          tracks: data.tracks ?? [],
+        });
+      } catch (err: unknown) {
+        const msg =
+          err instanceof Error
+            ? err.message
+            : "❌ Error loading album from server.";
+        if (!cancelled) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
+          setMessage(msg);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [albumId]);
-
-  async function fetchAlbum(): Promise<void> {
-    try {
-      const res = await fetch(`/api/albums/${albumId}`, { cache: "no-store" });
-      if (!res.ok) throw new Error("Failed to load album");
-
-      const data: AlbumResponse = await res.json();
-
-      setAlbum({
-        title: data.title ?? "",
-        artist: data.artist ?? "",
-        year: (data.year ?? "").toString(),
-        image: data.image ?? data.imageUrl ?? "",
-        description: data.description ?? "",
-        tracks: data.tracks ?? [],
-      });
-    } catch (err) {
-      console.error(err);
-      setMessage("❌ Error loading album.");
-    }
-  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -64,7 +74,9 @@ export default function EditAlbum({ albumId, onSaved }: Props) {
     setAlbum((prev) => ({ ...prev, [name]: value }));
   };
 
-  async function handleFormSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
+  const handleFormSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
 
     try {
@@ -72,44 +84,44 @@ export default function EditAlbum({ albumId, onSaved }: Props) {
         artist: album.artist,
         title: album.title,
         description: album.description,
-        image: album.image || "", // always send as 'image'
-      // year to number (or null)
+        image: album.image || "",
         year: album.year ? parseInt(album.year, 10) : null,
         tracks: album.tracks ?? [],
       };
 
-      const res = await fetch(`/api/albums/${albumId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedAlbum),
-      });
-
-      if (!res.ok) throw new Error("Update failed");
+      await put(`/albums/${albumId}`, updatedAlbum);
 
       setMessage("✅ Album updated successfully! Redirecting...");
       setTimeout(() => {
         onSaved?.();
         router.push("/");
       }, 1200);
-    } catch (err) {
-      console.error("Error updating album:", err);
-      setMessage("❌ Error updating album.");
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? `❌ ${err.message}` : "❌ Error updating album.";
+      setMessage(msg);
     }
-  }
+  };
 
   return (
     <div className="container py-4">
-      <div className="card shadow-sm p-4" style={{ maxWidth: "700px", margin: "0 auto" }}>
+      <div
+        className="card shadow-sm p-4"
+        style={{ maxWidth: "700px", margin: "0 auto" }}
+      >
         <h2 className="text-center mb-4">✏️ Edit Album</h2>
 
         {message && (
-          <div className={`alert ${message.includes("✅") ? "alert-success" : "alert-danger"} text-center`}>
+          <div
+            className={`alert ${
+              message.includes("✅") ? "alert-success" : "alert-danger"
+            } text-center`}
+          >
             {message}
           </div>
         )}
 
         <form onSubmit={handleFormSubmit}>
-          {/* Album Info */}
           <div className="row mb-3">
             <div className="col">
               <label className="form-label">Album Title</label>
@@ -174,9 +186,12 @@ export default function EditAlbum({ albumId, onSaved }: Props) {
             />
           </div>
 
-          {/* Buttons */}
           <div className="d-flex justify-content-between">
-            <button type="button" className="btn btn-light" onClick={() => router.push("/")}>
+            <button
+              type="button"
+              className="btn btn-light"
+              onClick={() => router.push("/")}
+            >
               Cancel
             </button>
             <button type="submit" className="btn btn-primary">
