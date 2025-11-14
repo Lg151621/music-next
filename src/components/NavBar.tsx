@@ -35,6 +35,11 @@ export default function NavBar(): JSX.Element {
                 New
               </Link>
             </li>
+             <li className="nav-item">
+              <Link href="/about" className="nav-link">
+                About
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
