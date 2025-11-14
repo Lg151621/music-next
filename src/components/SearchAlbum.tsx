@@ -1,3 +1,4 @@
+// src/components/SearchAlbum.tsx
 "use client";
 
 import React, { JSX } from "react";
@@ -17,7 +18,14 @@ export default function SearchAlbum({
   return (
     <div className="container">
       <SearchForm onSubmit={updateSearchResults} />
-      <AlbumList albums={albums} />
+
+      {albums.length > 0 ? (
+        <AlbumList albums={albums} />
+      ) : (
+        <p className="mt-3 text-muted">
+          No albums match your search yet. Try a different phrase.
+        </p>
+      )}
     </div>
   );
 }

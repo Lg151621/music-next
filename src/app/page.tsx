@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import NavBar from "@/components/NavBar";
-import AlbumList from "@/components/AlbumList";  // ✅ use AlbumList now
+import SearchAlbum from "@/components/SearchAlbum"; // ✅ Use SearchAlbum here
 import { get } from "@/lib/apiClient";
 import type { Album, AlbumResponse } from "@/lib/types";
 import "@/components/App.css";
 
 export default function HomePage() {
-  const router = useRouter();
   const [albumList, setAlbumList] = useState<Album[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [searchPhrase, setSearchPhrase] = useState<string>("");
 
   useEffect(() => {
     let cancelled = false;
@@ -31,14 +30,22 @@ export default function HomePage() {
           tracks: a.tracks,
         }));
 
-        if (!cancelled) setAlbumList(normalized);
+        if (!cancelled) {
+          setAlbumList(normalized);
+          setError(null);
+        }
       } catch (err: unknown) {
         console.error("❌ Failed to load albums:", err);
+
         const message =
           err instanceof Error
             ? err.message
             : "An unexpected error occurred while fetching albums.";
-        if (!cancelled) setError(message);
+
+        if (!cancelled) {
+          setError(message);
+          setAlbumList([]);
+        }
       }
     })();
 
@@ -47,20 +54,37 @@ export default function HomePage() {
     };
   }, []);
 
+  // 🔍 Filter albums using search phrase
+  const filtered = albumList.filter((album) => {
+    const q = searchPhrase.toLowerCase().trim();
+    if (!q) return true; // show all
+
+    const haystack = (
+      (album.title ?? "") +
+      " " +
+      (album.artist ?? "") +
+      " " +
+      (album.description ?? "")
+    ).toLowerCase();
+
+    return haystack.includes(q);
+  });
+
   return (
     <>
       <NavBar />
-      <main className="container main-content">
-       {error ? (
-  <div style={{ color: "red", fontWeight: "bold", marginTop: "2rem" }}>
-    ⚠️ {error}
-  </div>
-) : albumList.length > 0 ? (
-  <AlbumList albums={albumList} />
-) : (
-  <p>Loading albums...</p>
-)}
 
+      <main className="container main-content">
+        {error ? (
+          <div style={{ color: "red", fontWeight: "bold", marginTop: "2rem" }}>
+            ⚠️ {error}
+          </div>
+        ) : (
+          <SearchAlbum
+            albums={filtered}
+            updateSearchResults={setSearchPhrase}
+          />
+        )}
       </main>
     </>
   );
