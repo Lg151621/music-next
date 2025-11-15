@@ -42,13 +42,15 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
+    
+    if (process.env.NODE_ENV === "development") {
+      return [];
+    }
+
     return [
       {
         source: "/api/:path*",
-        destination:
-          process.env.NODE_ENV === "development"
-            ? "http://localhost:3000/api/:path*"
-            : `${BACKEND_BASE}/api/:path*`,
+        destination: `${BACKEND_BASE}/api/:path*`,
       },
     ];
   },
