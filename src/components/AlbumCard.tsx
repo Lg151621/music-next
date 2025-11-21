@@ -1,7 +1,9 @@
+// This component uses NextAuth session to control which actions are visible.
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { Album } from "@/lib/types";
 
 interface AlbumCardProps {
@@ -9,51 +11,81 @@ interface AlbumCardProps {
 }
 
 export default function AlbumCard({ album }: AlbumCardProps) {
-  const router = useRouter();
-
-  const handleClick = () => {
-    router.push(`/show/${album.id}`);
-  };
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "admin";
 
   return (
-    <div
-      className="album-card shadow-sm rounded-lg border p-3 hover:shadow-lg transition-all duration-200 cursor-pointer"
-      onClick={handleClick}
-      style={{
-        width: "260px",
-        margin: "1rem auto",
-        backgroundColor: "#fff",
-      }}
-    >
-      {album.image ? (
-        <Image
-          src={album.image}
-          alt={album.title}
-          width={250}
-          height={250}
-          className="rounded-lg object-cover"
-        />
-      ) : (
-        <div
-          style={{
-            width: "250px",
-            height: "250px",
-            backgroundColor: "#eee",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#666",
-            borderRadius: "8px",
-          }}
-        >
-          No Image
-        </div>
-      )}
+    <div className="card">
+      {/* ===== Album Cover Image ===== */}
+      <div className="img-wrapper">
+        {album.image ? (
+          <Image
+            src={album.image}
+            alt={album.title}
+            fill
+            sizes="(max-width: 768px) 100vw, 240px"
+            style={{ objectFit: "cover" }}
+          />
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              backgroundColor: "#eee",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#666",
+            }}
+          >
+            No Image
+          </div>
+        )}
+      </div>
 
-      <div style={{ marginTop: "0.75rem", textAlign: "center" }}>
-        <h5 style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{album.title}</h5>
-        <p style={{ color: "#666", margin: "0.25rem 0" }}>{album.artist}</p>
-        <p style={{ fontSize: "0.9rem", color: "#888" }}>{album.year ?? ""}</p>
+      {/* ===== Album Title, Artist, and Year ===== */}
+      <div className="card-body">
+        <h5
+          className="card-title"
+          style={{ fontSize: "1.1rem", fontWeight: 600 }}
+        >
+          {album.title}
+        </h5>
+
+        <p className="card-text">
+          {album.artist}
+          <br />
+          <span>Released: {album.year ?? ""}</span>
+        </p>
+
+        {/* ===== Buttons (only when logged in) ===== */}
+        {session && (
+          <div className="card-footer-buttons">
+            {/* VIEW BUTTON */}
+            <Link
+              href={`/show/${album.id}`}
+              className="Btn-link"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button type="button" className="Btn Btn-view">
+                View
+              </button>
+            </Link>
+
+            {/* EDIT BUTTON (Admins only) */}
+            {isAdmin && (
+              <Link
+                href={`/edit/${album.id}`}
+                className="Btn-link"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button type="button" className="Btn Btn-edit">
+                  Edit
+                </button>
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -14,15 +14,24 @@
     "jsx": "react-jsx",
     "incremental": true,
     "plugins": [{ "name": "next" }],
-    "baseUrl": "src",
-    "paths": { "@/*": ["*"] }
+
+    /* Moved from "src" to "." so root files like auth.ts work */
+    "baseUrl": ".",
+
+    "paths": {
+      "@/*": ["src/*"],       // Your existing alias (fixed to be correct)
+      "auth": ["./auth"]      // <-- added for NextAuth v5 root config
+    }
   },
+
   "include": [
     "next-env.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "auth.ts"                 // <-- include root auth config file
   ],
+
   "exclude": ["node_modules"]
 }

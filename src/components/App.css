@@ -1,23 +1,62 @@
-/* ===== Album Grid Layout ===== */
+/* ========================================================================== */
+/*                               GLOBAL BODY                                  */
+/* ========================================================================== */
+
+body {
+  background-color: #f5f5f7;
+}
+
+/* Main content spacing */
+.main-content {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  min-height: 70vh;
+}
+
+/* ========================================================================== */
+/*                                   NAVBAR                                   */
+/* ========================================================================== */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.navbar .navbar-collapse {
+  width: 100%;
+}
+
+/* ========================================================================== */
+/*                                   CARDS                                    */
+/* ========================================================================== */
+
+/* Grid layout for albums */
 .album-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 3 per row */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 24px;
   justify-items: center;
   padding: 2rem;
   align-items: flex-start;
 }
 
-/* ===== Card Styling ===== */
+/* Individual card */
 .card {
   width: 100%;
-  max-width: 320px;
+  max-width: 280px;
   min-height: 100%;
-  border-radius: 12px;
+  border-radius: 4px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   background-color: #fff;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .card:hover {
@@ -25,19 +64,22 @@
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 
-/* ===== Image Wrapper & Fade Effect ===== */
+/* Album image wrapper */
 .img-wrapper {
   width: 100%;
-  height: 220px;               /* fixed size for consistent layout */
-  background-color: #f8f8f8;   /* neutral background while loading */
+  height: 200px;
+  background-color: #f8f8f8;
   overflow: hidden;
   position: relative;
+  border-radius: 0;
 }
 
-/* ===== Card Body & Text ===== */
+/* Card text body */
 .card-body {
   padding: 1rem;
   text-align: center;
+  display: flex;           /* NEW */
+  flex-direction: column;  /* NEW */
 }
 
 .card-title {
@@ -48,38 +90,156 @@
 .card-text {
   font-size: 0.9rem;
   color: #555;
-  min-height: 80px;            /* keeps cards same height */
+  min-height: 80px;
 }
 
-.btn {
-  margin-top: 10px;
+/* === NEW — Align buttons at the bottom === */
+.card-footer-buttons {
+  margin-top: auto;                    /* pushes buttons to bottom */
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.75rem;
 }
 
-/* ===== Navbar Styling ===== */
-.navbar {
-  position: sticky;
+/* ========================================================================== */
+/*                                 BUTTONS                                    */
+/* ========================================================================== */
+
+/* Main button base style */
+.Btn {
+  width: 115px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #111;
+  border: none;
+  color: white;
+  font-weight: 600;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  transition: all .25s ease;
+}
+
+.Btn::before {
+  width: 130px;
+  height: 130px;
+  position: absolute;
+  content: "";
+  background-color: white;
+  border-radius: 50%;
+  left: -100%;
   top: 0;
-  z-index: 1030;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  mix-blend-mode: difference;
+  transition: all .3s ease;
+}
+
+.Btn:hover::before {
+  transform: translate(100%, -50%);
+  border-radius: 0;
+}
+
+.Btn:active {
+  transform: translate(4px, 4px);
+}
+
+/* Remove underline from links wrapping buttons */
+.Btn-link,
+a.Btn-link {
+  text-decoration: none !important;
+  display: inline-block;
+}
+
+/* Variants */
+.Btn-view {
+  background-color: #000; /* pure black */
+}
+
+.Btn-edit {
+  background-color: #000;
+  color: #fff;
+}
+
+.Btn-edit::before {
   background-color: #fff;
 }
 
-/* Ensure collapsible menu behaves correctly */
-.navbar .navbar-collapse {
-  width: 100%;
+/* ========================================================================== */
+/*                             USER AVATAR TOOLTIP                             */
+/* ========================================================================== */
+
+.user-avatar-wrapper {
+  position: relative;
+  display: inline-block;
 }
 
-/* ===== Main Content Spacing ===== */
-.main-content {
-  padding-top: 2rem;   /* space below navbar */
-  padding-bottom: 2rem;
-  min-height: 70vh;
+/* Avatar */
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 80%;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
 }
 
-/* ===== Body Background ===== */
-body {
-  background-color: #f5f5f7;
+/* Invisible hover zone */
+.user-avatar-wrapper::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1;
 }
+
+/* Tooltip bubble */
+.user-tooltip {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background: #111827;
+  color: #f9fafb;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* When hovered */
+.user-avatar:hover + .user-tooltip,
+.user-avatar-wrapper:hover .user-tooltip,
+.user-tooltip:hover {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ========================================================================== */
+/*                                 ABOUT PAGE                                  */
+/* ========================================================================== */
 
 .about-page {
   min-height: 100vh;
@@ -87,7 +247,7 @@ body {
   padding: 4rem 1rem;
 }
 
-/* HERO SECTION */
+/* Hero */
 .about-hero {
   background: linear-gradient(135deg, #2563eb, #1e3a8a);
   padding: 4rem 2rem;
@@ -109,7 +269,7 @@ body {
   opacity: 0.95;
 }
 
-/* CONTENT SECTION */
+/* Content section */
 .about-content {
   background: white;
   padding: 3rem 2rem;
@@ -129,7 +289,6 @@ body {
   color: #2563eb;
 }
 
-/* TEXT & LISTS */
 .about-text {
   font-size: 1.1rem;
   line-height: 1.7;
@@ -146,19 +305,7 @@ body {
   padding-left: 1.5rem;
 }
 
-/* HOME BUTTON */
-.about-home-container {
-  margin-top: 2.5rem;
-  text-align: center;
-}
-
-.about-home-link {
-  padding: 0.75rem 2rem;
-  font-size: 1.1rem;
-  border-radius: 8px;
-}
-
-/* FOOTER */
+/* Footer */
 .about-footer {
   text-align: center;
   margin-top: 2.5rem;
