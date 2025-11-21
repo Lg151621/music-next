@@ -42,18 +42,18 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
-    
-    if (process.env.NODE_ENV === "development") {
-      return [];
-    }
+  if (process.env.NODE_ENV === "development") {
+    return [];
+  }
 
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${BACKEND_BASE}/api/:path*`,
-      },
-    ];
-  },
+  return [
+    // ➤ Keep albums, tracks, etc. going to backend
+    {
+      source: "/api/(albums|tracks)/:path*",
+      destination: `${BACKEND_BASE}/api/:path*`,
+    },
+  ];
+}
 };
 
 export default nextConfig;
