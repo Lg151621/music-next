@@ -1,28 +1,16 @@
 // src/app/show/[albumId]/page.tsx
 
-import NavBar from "@/components/NavBar";
-import ShowAlbumClient from "./ShowAlbumClient";
+import OneAlbum from "@/components/OneAlbum";
 
-// This file becomes the dynamic route: /show/[albumId]
-// Example: /show/3 → params.albumId = "3"
-export default async function Page({
+// This is a SERVER component (no "use client" here)
+export default async function ShowAlbumPage({
   params,
 }: {
   params: Promise<{ albumId: string }>;
 }) {
-  // In Next.js 15 (App Router), dynamic params arrive as a Promise.
-  // We must await them to get the actual albumId string.
+  // ✅ unwrap the Promise that Next gives us
   const { albumId } = await params;
 
-  return (
-    <>
-      {/* Global navigation displayed across all pages */}
-      <NavBar />
-
-      <main className="container">
-        {/* Pass the albumId to a Client Component that handles fetching + rendering */}
-        <ShowAlbumClient albumId={albumId} />
-      </main>
-    </>
-  );
+  // Pass the plain string down to the client component
+  return <OneAlbum albumId={albumId} />;
 }
